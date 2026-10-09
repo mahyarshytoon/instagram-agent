@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📚 آموزش پروژه Instagram Agent</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --text: #c9d1d9;
+    --text2: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #f778ba;
+    --success: #3fb950;
+    --warning: #d29922;
+    --danger: #f85149;
+    --border: #30363d;
+    --code-bg: #1f2428;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    font-size: 16px;
+  }
+  .container { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 280px;
+    background: var(--bg2);
+    border-left: 1px solid var(--border);
+    padding: 20px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  .sidebar h2 {
+    color: var(--accent);
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar a {
+    display: block;
+    color: var(--text2);
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    transition: all 0.2s;
+    font-size: 14px;
+  }
+  .sidebar a:hover {
+    background: var(--bg3);
+    color: var(--accent);
+    padding-right: 18px;
+  }
+  .main { flex: 1; padding: 40px; max-width: 1200px; }
+  h1 {
+    color: var(--accent);
+    font-size: 32px;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--accent);
+  }
+  h2 {
+    color: var(--accent2);
+    font-size: 26px;
+    margin: 40px 0 20px;
+    padding: 15px;
+    background: var(--bg2);
+    border-radius: 8px;
+    border-right: 4px solid var(--accent2);
+  }
+  h3 { color: var(--accent); font-size: 20px; margin: 30px 0 15px; }
+  h4 { color: var(--text); font-size: 17px; margin: 20px 0 10px; }
+  p { margin-bottom: 15px; }
+  .analogy {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    border-right: 4px solid var(--warning);
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+  }
+  .analogy::before {
+    content: "🎓 analogy";
+    display: block;
+    color: var(--warning);
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  .usage-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-right: 4px solid var(--success);
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+    font-family: 'Consolas', monospace;
+    font-size: 14px;
+    white-space: pre-wrap;
+  }
+  .usage-box::before {
+    content: "📌 usage-box";
+    display: block;
+    color: var(--success);
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 14px;
+  }
+  code {
+    background: var(--code-bg);
+    color: var(--accent2);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'Consolas', monospace;
+    font-size: 14px;
+  }
+  pre {
+    background: var(--code-bg);
+    padding: 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 15px 0;
+    border: 1px solid var(--border);
+    direction: ltr;
+    text-align: left;
+  }
+  pre code { background: none; padding: 0; color: var(--text); }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: var(--bg2);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  th {
+    background: var(--bg3);
+    color: var(--accent);
+    padding: 12px;
+    text-align: right;
+    font-weight: bold;
+    border-bottom: 2px solid var(--border);
+  }
+  td { padding: 12px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: var(--bg3); }
+  .mermaid {
+    background: var(--bg2);
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    text-align: center;
+  }
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 0 4px;
+  }
+  .badge-success { background: var(--success); color: #000; }
+  .badge-warning { background: var(--warning); color: #000; }
+  .badge-danger { background: var(--danger); color: #fff; }
+  .badge-info { background: var(--accent); color: #000; }
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 15px 0;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+  }
+  blockquote {
+    border-right: 4px solid var(--accent);
+    padding: 15px 20px;
+    margin: 20px 0;
+    background: var(--bg2);
+    border-radius: 8px;
+    color: var(--text2);
+    font-style: italic;
+  }
+  .toc {
+    background: var(--bg2);
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+  }
+  .toc h3 { margin-top: 0; }
+  .toc ol { padding-right: 20px; }
+  .toc li { margin-bottom: 8px; color: var(--text2); }
+  .toc a { color: var(--accent); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .divider { height: 1px; background: var(--border); margin: 40px 0; }
+  @media (max-width: 768px) {
+    .container { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; }
+    .main { padding: 20px; }
+  }
+  .step {
+    background: var(--bg2);
+    border-right: 4px solid var(--accent);
+    padding: 15px 20px;
+    margin: 15px 0;
+    border-radius: 8px;
+  }
+  .step-num {
+    display: inline-block;
+    background: var(--accent);
+    color: #000;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 30px;
+    font-weight: bold;
+    margin-left: 10px;
+  }
+  .emoji-list { list-style: none; padding: 0; }
+  .emoji-list li {
+    padding: 8px 0;
+    padding-right: 30px;
+    position: relative;
+  }
+  .emoji-list li::before {
+    content: "▸";
+    position: absolute;
+    right: 0;
+    color: var(--accent);
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <aside class="sidebar">
+    <h2>📚 فهرست</h2>
+    <a href="#intro">🏠 مقدمه</a>
+    <a href="#session1">🗺️ جلسه ۱: نقشه</a>
+    <a href="#session2">🗄️ جلسه ۲: دیتابیس</a>
+    <a href="#session3">🚪 جلسه ۳: Webhook</a>
+    <a href="#session4">📬 جلسه ۴: Queue</a>
+    <a href="#session5">🧠 جلسه ۵: AI + RAG</a>
+    <a href="#session6">🔌 جلسه ۶: Adapter</a>
+    <a href="#session7">🏛️ جلسه ۷: معماری</a>
+    <a href="#patterns">📐 Design Patterns</a>
+    <a href="#rules">📜 قوانین طلایی</a>
+  </aside>
+
+  <main class="main">
+  
+    <h1 id="intro">📚 آموزش پروژه‌ی Instagram Agent</h1>
+    
+    <div class="card">
+      <h3>🎯 این فایل چیه؟</h3>
+      <p>این فایل، <strong>خلاصه‌ی کامل</strong> ۷ جلسه آموزش پروژه‌ی Instagram Agent هست. هر وقت گم شدی، این فایل رو باز کن.</p>
+      <p><strong>روش خوندن:</strong> از بالا به پایین، یا از فهرست کناری هر جلسه‌ای رو که می‌خوای انتخاب کن.</p>
+    </div>
+    
+    <div class="toc">
+      <h3>📋 فهرست مطالب</h3>
+      <ol>
+        <li><a href="#session1">جلسه ۱: نقشه‌ی پروژه (سفر یه کامنت)</a></li>
+        <li><a href="#session2">جلسه ۲: دیتابیس (Migration, Model, Relationship)</a></li>
+        <li><a href="#session3">جلسه ۳: Webhook (دروازه‌ی ورودی)</a></li>
+        <li><a href="#session4">جلسه ۴: Queue (کار پس‌زمینه)</a></li>
+        <li><a href="#session5">جلسه ۵: AI + RAG + Function Calling</a></li>
+        <li><a href="#session6">جلسه ۶: Adapter Pattern</a></li>
+        <li><a href="#session7">جلسه ۷: معماری کلی + Design Patterns</a></li>
+      </ol>
+    </div>
+    
+    <div class="divider"></div>
+
+    <h2 id="session1">🗺️ جلسه ۱: نقشه‌ی پروژه</h2>
+    
+    <h3>🎯 هدف این جلسه</h3>
+    <p>فهمیدن <strong>سفر یه کامنت</strong> — از لحظه‌ای که کاربر کامنت می‌ذاره، تا لحظه‌ای که جواب می‌گیره.</p>
+    
+    <div class="analogy">
+      <strong>مک‌دونالدز رو تصور کن:</strong>
+      <pre>
+۱. مشتری میاد تو
+۲. صندوق‌دار سفارش می‌گیره
+۳. سفارش می‌ره آشپزخونه
+۴. آشپز برگر می‌پزه
+۵. غذا میاد رو پیشخوان
+۶. صندوق‌دار صدا می‌زنه: «سفارش شماره ۴۲!»
+۷. مشتری می‌گیره و می‌ره</pre>
+      <p>پروژه‌ی تو هم دقیقاً همینه، ولی برای اینستاگرام!</p>
+    </div>
+    
+    <h3>📊 فلوچارت کامل</h3>
+    
+    <div class="mermaid">
+flowchart TD
+    U([👤 کاربر اینستا]) -->|کامنت| M[📱 Meta Graph API]
+    M -->|POST Webhook| W[🌐 /api/instagram/webhook]
+    W --> Sig{✍️ X-Hub-Signature-256}
+    Sig -->|❌| R1[403 Forbidden]
+    Sig -->|✅| WH[WebhookHandler::handle]
+    WH --> Sanitize[🧹 TextSanitizer]
+    Sanitize --> Spam[🛡️ SpamDetector]
+    Spam -->|اسپم| SpamEnd[💾 rejected + return]
+    Spam -->|OK| Rate[⚡ RateLimiter]
+    Rate -->|OK| SaveC[💾 Comment: pending]
+    SaveC --> DB1[💾 DB::transaction commit]
+    DB1 --> Job[📤 dispatch ValidateCommentJob]
+    Job --> Queue[📬 Queue: ai-responses]
+    Queue --> Worker[⚙️ Queue Worker]
+    Worker --> Check{🛍️ محصول فعال؟}
+    Check -->|❌| Skip[⏭️ status: skipped]
+    Check -->|✅| AI[🤖 AIService::generateReply]
+    AI --> Agent[🧠 ProductSalesAgent]
+    Agent --> Tools[🔧 Tools: GetProductInfo + SearchProducts]
+    Tools --> Send[📤 InstagramService::replyToComment]
+    Send --> Adapter{🔀 MetaAdapter}
+    Adapter -->|Fake| Fake[🎭 FakeMeta: 127.0.0.1:8001]
+    Adapter -->|Real| Real[🌐 graph.facebook.com]
+    Fake --> Save[💾 Response + status: processed]
+    Real --> Save
+    Save --> Done([✅ تمام])
+    </div>
+    
+    <h3>📋 ۱۰ مرحله‌ی سفر</h3>
+    <table>
+      <thead><tr><th>#</th><th>مرحله</th><th>مسیر فایل</th></tr></thead>
+      <tbody>
+        <tr><td>۱</td><td>کاربر کامنت می‌ذاره</td><td>-</td></tr>
+        <tr><td>۲</td><td>Meta خبر می‌ده (Webhook)</td><td>-</td></tr>
+        <tr><td>۳</td><td>Controller دریافت می‌کنه</td><td><code>routes/api.php</code></td></tr>
+        <tr><td>۴</td><td>امضا چک می‌شه</td><td><code>SignatureVerifier.php</code></td></tr>
+        <tr><td>۵</td><td>لاگ می‌شه</td><td><code>WebhookLog.php</code></td></tr>
+        <tr><td>۶</td><td>Pipeline پردازش</td><td><code>WebhookHandler.php</code></td></tr>
+        <tr><td>۷</td><td>ذخیره تو DB</td><td><code>Comment.php</code></td></tr>
+        <tr><td>۸</td><td>می‌ره تو صف</td><td><code>ValidateCommentJob.php</code></td></tr>
+        <tr><td>۹</td><td>AI جواب می‌سازه</td><td><code>ProductSalesAgent.php</code></td></tr>
+        <tr><td>۱۰</td><td>جواب برمی‌گرده</td><td><code>MetaAdapter.php</code></td></tr>
+      </tbody>
+    </table>
+    
+    <div class="usage-box">📌 نکته‌ی طلایی:
+«هر وقت گم شدی، این فلوچارت رو باز کن.
+ببین الآن کجای کار هستی.»</div>
+
+    <div class="divider"></div>
+
+    <h2 id="session2">🗄️ جلسه ۲: دیتابیس</h2>
+    
+    <h3>🎯 هدف این جلسه</h3>
+    <p>فهمیدن <strong>چرا ۲۶ جدول داری</strong> و هر کدوم چرا وجود داره.</p>
+    
+    <div class="analogy">
+      <strong>یه کتابخونه بزرگ رو تصور کن:</strong>
+      <ul class="emoji-list">
+        <li>قفسه = Table (جدول)</li>
+        <li>کتاب = Row (ردیف)</li>
+        <li>عنوان، نویسنده = Column (ستون)</li>
+        <li>نقشه‌ی چیدمان = Migration</li>
+        <li>کتابدار = Model</li>
+      </ul>
+    </div>
+    
+    <h3>📊 سه مفهوم پایه</h3>
+    <table>
+      <thead><tr><th>مفهوم</th><th>معنی</th><th>مثال</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Table</strong></td><td>قفسه</td><td><code>products</code></td></tr>
+        <tr><td><strong>Row</strong></td><td>کتاب</td><td>کرم ضد آفتاب</td></tr>
+        <tr><td><strong>Column</strong></td><td>ویژگی</td><td><code>name</code>, <code>price</code></td></tr>
+      </tbody>
+    </table>
+    
+    <h3>🎯 سه سؤال که Migration جواب می‌ده</h3>
+    <div class="grid">
+      <div class="card">
+        <h4>❓ چرا Migration؟</h4>
+        <ul class="emoji-list">
+          <li>تکرارپذیری</li>
+          <li>تاریخچه</li>
+          <li>هماهنگی تیم</li>
+          <li>تست آسون</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>❓ چرا Model؟</h4>
+        <ul class="emoji-list">
+          <li>خوانایی</li>
+          <li>امنیت (SQL Injection)</li>
+          <li>رابطه راحت</li>
+          <li>تست راحت</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>❓ چرا Relationship؟</h4>
+        <ul class="emoji-list">
+          <li>اتصال جدول‌ها</li>
+          <li>جلوگیری از تکرار</li>
+          <li>DRY</li>
+          <li>نرمال‌سازی</li>
+        </ul>
+      </div>
+    </div>
+    
+    <h3>📊 سه نوع Relationship</h3>
+    <table>
+      <thead><tr><th>نوع</th><th>مثال</th><th>FK کجا؟</th></tr></thead>
+      <tbody>
+        <tr><td><strong>۱ به ۱</strong></td><td>User ↔ Profile</td><td>یه طرف</td></tr>
+        <tr><td><strong>۱ به N</strong></td><td>User → Comments</td><td>طرف «چند»</td></tr>
+        <tr><td><strong>N به M</strong></td><td>Post ↔ Product</td><td>جدول واسط</td></tr>
+      </tbody>
+    </table>
+    
+    <h3>📊 جدول‌های اصلی پروژه</h3>
+    <table>
+      <thead><tr><th>جدول</th><th>کارش</th><th>تعداد</th></tr></thead>
+      <tbody>
+        <tr><td><code>products</code></td><td>محصولات</td><td>۵</td></tr>
+        <tr><td><code>instagram_users</code></td><td>کاربران</td><td>-</td></tr>
+        <tr><td><code>instagram_posts</code></td><td>پست‌ها</td><td>-</td></tr>
+        <tr><td><code>comments</code></td><td>کامنت‌ها</td><td>۴۲</td></tr>
+        <tr><td><code>conversations</code></td><td>مکالمات</td><td>-</td></tr>
+        <tr><td><code>messages</code></td><td>پیام‌ها</td><td>-</td></tr>
+        <tr><td><code>responses</code></td><td>جواب‌های AI</td><td>۱۷</td></tr>
+        <tr><td><code>post_product_map</code></td><td>رابطه Post↔Product</td><td>-</td></tr>
+      </tbody>
+    </table>
+    
+    <h3>🎯 State Machine کامنت‌ها</h3>
+    <div class="card">
+      <pre>
+🟡 pending    ← تو صف
+    │
+    ├─→ 🟢 processed  (AI جواب داد)
+    ├─→ ⚪ skipped    (محصول نبود)
+    ├─→ 🔴 rejected   (اسپم بود)
+    └─→ ⚫ failed     (خطا داد)</pre>
+    </div>
+    
+    <h3>🎯 قانون DRY</h3>
+    <blockquote>
+      «اگه چیزی رو می‌تونی از جای دیگه بفهمی، تو ذخیره نکن!»
+    </blockquote>
+    
+    <table>
+      <thead><tr><th>❌ تکراری</th><th>✅ جای درست</th></tr></thead>
+      <tbody>
+        <tr><td>کاربر تو <code>responses</code></td><td>از <code>comment_id</code> بگیر</td></tr>
+        <tr><td>قیمت تو <code>instagram_posts</code></td><td>تو <code>products</code></td></tr>
+        <tr><td>لیست کامنت‌ها تو <code>users</code></td><td>FK تو <code>comments</code></td></tr>
+      </tbody>
+    </table>
+    
+    <div class="usage-box">📌 قانون طلایی:
+«قبل از اضافه کردن FK، بپرس:
+- می‌تونم از یه راه دیگه بهش برسم؟
+- اگه بله، نذارش!»</div>
+
+    <div class="divider"></div>
+
+    <h2 id="session3">🚪 جلسه ۳: Webhook</h2>
+    
+    <h3>🎯 هدف این جلسه</h3>
+    <p>فهمیدن <strong>چطور Meta به ما وصل می‌شه</strong>.</p>
+    
+    <div class="analogy">
+      <strong>دو تا راه برای گرفتن خبر:</strong>
+      <br><br>
+      <strong>روش ۱: Polling (زنگ زدن مداوم)</strong>
+      <pre>تو: «سلام، کامنت جدید اومده؟» (هر ۵ دقیقه)
+Meta: «نه»
+تو: «سلام، کامنت جدید اومده؟»
+Meta: «نه»
+تو: «سلام...»
+Meta: «آره، ۱ دقیقه پیش اومد»</pre>
+      
+      <strong>روش ۲: Webhook (خودش خبر می‌ده)</strong>
+      <pre>تو: «آقای Meta، اگه کامنت جدید اومد، خبرم کن»
+Meta: «باشه»
+...
+Meta: «سلام! کامنت جدید اومد»</pre>
+    </div>
+    
+    <h3>🎯 سه مفهوم کلیدی</h3>
+    <div class="grid">
+      <div class="card">
+        <h4>🌐 Endpoint</h4>
+        <p><strong>چی:</strong> آدرسی که Meta بهش POST می‌زنه</p>
+        <p><strong>کجا:</strong> <code>routes/api.php</code></p>
+        <p><strong>آدرس:</strong> <code>POST /api/instagram/webhook</code></p>
+      </div>
+      <div class="card">
+        <h4>🔐 Signature</h4>
+        <p><strong>چی:</strong> یه کد مخفی که ثابت می‌کنه درخواست از Meta اومده</p>
+        <p><strong>چطور:</strong> HMAC-SHA256 با <code>APP_SECRET</code></p>
+      </div>
+      <div class="card">
+        <h4>✅ 200 OK</h4>
+        <p><strong>چی:</strong> جوابی که همیشه برمی‌گردونیم</p>
+        <p><strong>چرا:</strong> اگه 500 بدی، Meta دوباره می‌فرسته (اسپم)</p>
+      </div>
+    </div>
+    
+    <h3>🎓 نکته: 200 یعنی «گرفتم» نه «انجام دادم»</h3>
+    <div class="analogy">
+      <strong>پستچی نامه می‌آره:</strong>
+      <pre>📬 پستچی: «نامه رو بده به تو»
+👤 تو: «باشه گرفتم» (200 OK)
+    ↓
+    ولی هنوز نامه رو باز نکردی!</pre>
+      <p><strong>200 یعنی:</strong> «دریافت کردم، می‌رم پردازش کنم»</p>
+      <p><strong>نه یعنی:</strong> «پردازش شد»</p>
+    </div>
+    
+    <h3>📊 جریان Webhook</h3>
+    <div class="mermaid">
+flowchart TD
+    M[📱 Meta] -->|POST| W[🌐 Webhook]
+    W --> Sig{🔐 Signature}
+    Sig -->|❌| R[403 Forbidden]
+    Sig -->|✅| WH[WebhookHandler]
+    WH -->|✅| OK[200 OK]
+    WH -->|📤| Q[Queue]
+    </div>
+    
+    <div class="usage-box">📌 Webhook کجا استفاده می‌شه؟
+├─ Instagram: کامنت، دایرکت
+├─ Stripe: پرداخت
+├─ GitHub: push
+├─ Telegram: پیام
+└─ بانک: تأیید تراکنش</div>
+
+    <div class="divider"></div>
+
+    <h2 id="session4">📬 جلسه ۴: Queue</h2>
+    
+    <h3>🎯 هدف این جلسه</h3>
+    <p>فهمیدن <strong>چرا کار پس‌زمینه مهمه</strong>.</p>
+    
+    <div class="analogy">
+      <strong>مک‌دونالدز:</strong>
+      <br><br>
+      <strong>❌ اشتباه:</strong>
+      <pre>صندوق‌دار: «سفارش شما؟»
+مشتری: «برگر»
+صندوق‌دار (می‌ره آشپزخونه، برگر می‌پزه، برمی‌گرده): «بفرما»</pre>
+      
+      <strong>✅ درست:</strong>
+      <pre>صندوق‌دار: «سفارش شما؟»
+مشتری: «برگر»
+صندوق‌دار: «۴۲، برو کنار، صدا می‌زنم»
+(آشپز می‌پزه، بعد صدا می‌زنه)</pre>
+    </div>
+    
+    <h3>🎯 سه دلیل Queue</h3>
+    <table>
+      <thead><tr><th>دلیل</th><th>توضیح</th></tr></thead>
+      <tbody>
+        <tr><td><strong>سرعت</strong></td><td>کاربر منتظر نمی‌مونه</td></tr>
+        <tr><td><strong>پایداری</strong></td><td>اگه AI قطع شد، تو صف می‌مونه</td></tr>
+        <tr><td><strong>مقیاس‌پذیری</strong></td><td>۱۰۰۰ کامنت همزمان = مشکلی نیست</td></tr>
+      </tbody>
+    </table>
+    
+    <h3>🎓 Retry چیه؟</h3>
+    <div class="card">
+      <pre>
+❌ تلاش ۱ (شکست) → صبر ۶۰ ثانیه
+❌ تلاش ۲ (شکست) → صبر ۳۰۰ ثانیه
+❌ تلاش ۳ (شکست) → صبر ۹۰۰ ثانیه
+💀 → قبرستان (failed_jobs)</pre>
+    </div>
+    
+    <h3>🎓 صف جدا چرا؟</h3>
+    <div class="analogy">
+      <strong>بیمارستان رو تصور کن:</strong>
+      <br><br>
+      <strong>❌ یه صف برای همه:</strong>
+      <pre>🚑 اورژانسی
+🤒 سرماخوردگی
+💉 واکسن
+(اورژانسی منتظر!)</pre>
+      
+      <strong>✅ صف‌های جدا:</strong>
+      <pre>🚑 اورژانسی (فوری)
+🩺 عادی (آروم)</pre>
+    </div>
+    
+    <p><strong>تو پروژه:</strong></p>
+    <pre>
+🧠 ai-responses  ← اولویت بالا
+📬 default       ← عمومی
+📧 emails        ← کم‌اهمیت</pre>
+    
+    <h3>🎓 Sync vs Async</h3>
+    <table>
+      <thead><tr><th></th><th>Sync</th><th>Async</th></tr></thead>
+      <tbody>
+        <tr><td><strong>معنی</strong></td><td>منتظر</td><td>پشت صحنه</td></tr>
+        <tr><td><strong>سرعت</strong></td><td>کند</td><td>سریع</td></tr>
+        <tr><td><strong>کی؟</strong></td><td>کار کوچیک</td><td>کار بزرگ</td></tr>
+        <tr><td><strong>مثال</strong></td><td>چک امضا</td><td>AI جواب</td></tr>
+      </tbody>
+    </table>
+    
+    <div class="usage-box">📌 Queue کجا؟
+├─ ایمیل (خبرنامه)
+├─ AI (پاسخگویی)
+├─ گزارش‌گیری
+├─ پردازش تصویر
+└─ هر کار طولانی</div>
+
+    <div class="divider"></div>
+
+    <h2 id="session5">🧠 جلسه ۵: AI + RAG</h2>
+    
+    <h3>🎯 هدف این جلسه</h3>
+    <p>فهمیدن <strong>چطور AI جواب دقیق می‌ده</strong>.</p>
+    
+    <div class="analogy">
+      <strong>فروشنده‌ی جدید رو تصور کن:</strong>
+      <ul class="emoji-list">
+        <li>هیچی از محصولات تو نمی‌دونه</li>
+        <li>باهوشه (مثل ChatGPT)</li>
+        <li>ولی اطلاعات نداره</li>
+      </ul>
+      
+      <p><strong>اگه بگی «قیمت کرم ضد آفتاب چنده؟»:</strong></p>
+      <pre>❌ فروشنده‌ی بدون اطلاعات:
+«نمی‌دونم! من فقط یه مدل زبانی‌ام.»
+
+✅ فروشنده‌ی با RAG:
+(میره تو دفترچه، قیمت رو پیدا می‌کنه)
+«۲۵۰ هزار تومن.»</pre>
+    </div>
+    
+    <h3>🎯 سه مفهوم کلیدی</h3>
+    <table>
+      <thead><tr><th>مفهوم</th><th>معنی</th><th>analogy</th></tr></thead>
+      <tbody>
+        <tr><td><strong>LLM</strong></td><td>مدل زبانی</td><td>فروشنده‌ی باهوش</td></tr>
+        <tr><td><strong>RAG</strong></td><td>LLM + اطلاعات</td><td>دفترچه</td></tr>
+        <tr><td><strong>Function Calling</strong></td><td>LLM + ابزار</td><td>جعبه‌ابزار</td></tr>
+      </tbody>
+    </table>
+    
+    <h3>🎓 Hallucination (توهم)</h3>
+    <div class="analogy">
+      <strong>LLM بدون RAG = بازیگر که نقش دکتر رو بازی می‌کنه:</strong>
+      <pre>❌ LLM بدون RAG:
+👤 بیمار: «درد قفسه سینه دارم»
+🎭 بازیگر: «آنتی‌بیوتیک بخور!»
+          ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+          غلط! چون دکتر نیست!
+
+✅ LLM با RAG:
+👨‍⚕️ LLM + DB: «بذار علائمت رو چک کنم.»
+              (ابزار رو صدا می‌زنه)
+              (اطلاعات واقعی می‌گیره)</pre>
+    </div>
+    
+    <h3>🎯 دو نوع RAG</h3>
+    <div class="grid">
+      <div class="card">
+        <h4>📋 RAG ساده</h4>
+        <p>اطلاعات تو prompt می‌ذاری</p>
+        <pre>prompt = "محصولات: {۱۰۰۰ تا}"
+       + "سؤال: {کامنت}"</pre>
+        <p><span class="badge badge-danger">مشکل:</span> Context Window</p>
+      </div>
+      <div class="card">
+        <h4>🔧 Function Calling ⭐</h4>
+        <p>LLM ابزار صدا می‌زنه</p>
+        <pre>Tool: SearchProducts
+Tool: GetProductInfo</pre>
+        <p><span class="badge badge-success">مزیت:</span> مقیاس‌پذیر</p>
+      </div>
+    </div>
+    
+    <h3>🎓 مقایسه</h3>
+    <table>
+      <thead><tr><th>معیار</th><th>RAG ساده</th><th>Function Calling</th></tr></thead>
+      <tbody>
+        <tr><td>سرعت</td><td>کند</td><td>سریع</td></tr>
+        <tr><td>توکن</td><td>زیاد</td><td>کم</td></tr>
+        <tr><td>دقت</td><td>متوسط</td><td>بالا</td></tr>
+        <tr><td>مقیاس</td><td>❌</td><td>✅</td></tr>
+        <tr><td>هزینه</td><td>زیاد</td><td>کم</td></tr>
+      </tbody>
+    </table>
+    
+    <h3>🎓 Agent چیه؟</h3>
+    <pre>
+🤖 Agent = LLM + Tools + Prompt + Memory
+          (مغز)  (دست)  (شخصیت)  (حافظه)</pre>
+    
+    <p><strong>تو پروژه:</strong> <code>ProductSalesAgent</code></p>
+    
+    <div class="usage-box">📌 RAG کجا؟
+├─ چت با PDF
+├─ دستیار مشتری
+├─ جستجوی هوشمند
+
+📌 Function Calling کجا؟
+├─ دستیار خرید (پروژه‌ی تو)
+├─ سیستم رزرو
+└─ بانکداری</div>
+
+    <div class="divider"></div>
+
+    <h2 id="session6">🔌 جلسه ۶: Adapter Pattern</h2>
+    
+    <h3>🎯 هدف این جلسه</h3>
+    <p>فهمیدن <strong>چطور بدون تغییر کد، بین Fake و Real سوییچ می‌کنی</strong>.</p>
+    
+    <div class="analogy">
+      <strong>مبدل برق رو تصور کن:</strong>
+      <pre>🔌 پریز ایرانی → 🔌 مبدل → 🔌 پریز اروپایی</pre>
+      <p>چون پریز ایرانی با دوشاخه‌ی اروپایی نمی‌خوره، مبدل واسطه می‌شه.</p>
+    </div>
+    
+    <h3>🎯 مشکل چیه؟</h3>
+    <div class="card">
+      <pre>🌐 تو ایران هستی
+📱 Meta تحریمه
+❌ نمی‌تونی وصل شی</pre>
+      <p><strong>راه‌حل:</strong> FakeMetaServer!</p>
+    </div>
+    
+    <h3>🎯 سه فایل تو پروژه</h3>
+    <table>
+      <thead><tr><th>فایل</th><th>کارش</th></tr></thead>
+      <tbody>
+        <tr><td><code>MetaAdapter</code></td><td>interface (قرارداد)</td></tr>
+        <tr><td><code>FakeMetaAdapter</code></td><td>برای توسعه</td></tr>
+        <tr><td><code>RealMetaAdapter</code></td><td>برای تولید</td></tr>
+      </tbody>
+    </table>
+    
+    <h3>🎯 تفاوت Interface و Class</h3>
+    <table>
+      <thead><tr><th>Interface</th><th>Class</th></tr></thead>
+      <tbody>
+        <tr><td>📋 «هر کسی می‌تونه»</td><td>👤 «من می‌کنم»</td></tr>
+        <tr><td>«چی» رو تعریف می‌کنه</td><td>«چطور» رو تعریف می‌کنه</td></tr>
+        <tr><td>نمی‌دونی چطور</td><td>می‌دونی چطور</td></tr>
+      </tbody>
+    </table>
+    
+    <h3>🎯 سوییچ چطور؟</h3>
+    <pre>// تو .env:
+META_ADAPTER=fake    # توسعه
+META_ADAPTER=real    # تولید
+
+// تو MetaServiceProvider:
+$this->app->singleton(MetaAdapter::class, function () {
+    return config('admin.meta.adapter') === 'real'
+        ? new RealMetaAdapter()
+        : new FakeMetaAdapter();
+});</pre>
+    
+    <h3>🎓 سه قانون Adapter</h3>
+    <div class="step">
+      <span class="step-num">۱</span>
+      <strong>interface تعریف کن</strong> (قرارداد)
+    </div>
+    <div class="step">
+      <span class="step-num">۲</span>
+      <strong>پیاده‌سازی‌های مختلف</strong> بساز
+    </div>
+    <div class="step">
+      <span class="step-num">۳</span>
+      <strong>کد اصلی با interface حرف بزنه</strong>
+    </div>
+    
+    <h3>🎓 انواع Adapter در دنیای واقعی</h3>
+    <table>
+      <thead><tr><th>Adapter</th><th>گزینه‌ها</th></tr></thead>
+      <tbody>
+        <tr><td>Database</td><td>MySQL, PostgreSQL, SQLite</td></tr>
+        <tr><td>Storage</td><td>Local, S3, Google Drive</td></tr>
+        <tr><td>Payment</td><td>زرین‌پال, Stripe, PayPal</td></tr>
+        <tr><td>SMS</td><td>Kavenegar, Twilio</td></tr>
+        <tr><td>AI</td><td>DeepSeek, GPT, Claude</td></tr>
+        <tr><td>Meta</td><td>Fake, Real (پروژه‌ی تو)</td></tr>
+      </tbody>
+    </table>
+    
+    <div class="usage-box">📌 چرا Adapter؟
+├─ سوییچ آسون (.env)
+├─ تست راحت (mock)
+├─ توسعه راحت
+└─ جدا کردن منطق</div>
+
+    <div class="divider"></div>
+
+    <h2 id="session7">🏛️ جلسه ۷: معماری کلی</h2>
+    
+    <h3>🎯 هدف این جلسه</h3>
+    <p>دیدن <strong>کل ساختمون</strong> بعد از یادگیری آجرها.</p>
+    
+    <h3>📊 معماری ۷ لایه</h3>
+    <div class="mermaid">
+flowchart TD
+    subgraph Input["📥 ورودی"]
+        U[👤 کاربر]
+        M[📱 Meta]
+    end
+    subgraph L1["🚪 لایه ۱: دروازه"]
+        R[routes/api.php]
+        WC[InstagramWebhookController]
+    end
+    subgraph L2["🔐 لایه ۲: امنیت"]
+        SV[SignatureVerifier]
+        WL[WebhookLog]
+    end
+    subgraph L3["🧑‍💼 لایه ۳: پردازش"]
+        WH[WebhookHandler]
+        TS[TextSanitizer]
+        SD[SpamDetector]
+        RL[RateLimiter]
+    end
+    subgraph L4["💾 لایه ۴: داده"]
+        Models[Models]
+        DB[(MySQL)]
+    end
+    subgraph L5["📤 لایه ۵: صف"]
+        J[ValidateCommentJob]
+        Q[Queue]
+        W2[Worker]
+    end
+    subgraph L6["🧠 لایه ۶: AI"]
+        AI[AIService]
+        AG[ProductSalesAgent]
+        T1[Tools]
+    end
+    subgraph L7["🔌 لایه ۷: Adapter"]
+        MA[MetaAdapter]
+        FMA[FakeMetaAdapter]
+        RMA[RealMetaAdapter]
+    end
+    U --> M --> R --> WC --> SV
+    SV --> WL --> WH
+    WH --> TS --> SD --> RL
+    RL --> Models --> DB
+    DB --> J --> Q --> W2
+    W2 --> AI --> AG --> T1
+    T1 --> MA
+    MA --> FMA
+    MA --> RMA
+    </div>
+    
+    <h3>🎯 سه اصل معماری</h3>
+    <div class="grid">
+      <div class="card">
+        <h4>۱. Separation of Concerns</h4>
+        <p>هر لایه کار خودش</p>
+      </div>
+      <div class="card">
+        <h4>۲. Dependency Inversion</h4>
+        <p>وابسته به interface، نه implementation</p>
+      </div>
+      <div class="card">
+        <h4>۳. Async by Design</h4>
+        <p>درخواست فوری، پردازش پشت صحنه</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2 id="patterns">📐 Design Patterns</h2>
+    
+    <table>
+      <thead><tr><th>Pattern</th><th>کجا؟</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Pipeline</strong></td><td>WebhookHandler</td></tr>
+        <tr><td><strong>Repository-ish</strong></td><td>Services</td></tr>
+        <tr><td><strong>Strategy</strong></td><td>AIService</td></tr>
+        <tr><td><strong>Command</strong></td><td>SendFakeComment</td></tr>
+        <tr><td><strong>Tool/Function</strong></td><td>GetProductInfoTool</td></tr>
+        <tr><td><strong>Job/Queue</strong></td><td>ValidateCommentJob</td></tr>
+        <tr><td><strong>Facade</strong></td><td>Laravel AI SDK</td></tr>
+        <tr><td><strong>Adapter</strong></td><td>MetaAdapter</td></tr>
+        <tr><td><strong>Dependency Inversion</strong></td><td>MetaAdapter interface</td></tr>
+      </tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <h2 id="rules">📜 قوانین طلایی</h2>
+    
+    <div class="card">
+      <h3>۲۵ قانون پروژه</h3>
+      <ol>
+        <li>Job بعد از DB::transaction dispatch کن</li>
+        <li>همیشه 200 OK به Meta (حتی اگه خطا بود)</li>
+        <li>PHPUnit 12: test_ prefix</li>
+        <li>Http::fake() برای تست آفلاین</li>
+        <li>RefreshDatabase استاندارد</li>
+        <li>Exception پرتاب کن، array نه</li>
+        <li>api_base از config</li>
+        <li>isRetryable/isAuthError/isPermanent</li>
+        <li>env() در config فقط</li>
+        <li>model ID دقیق: provider/model</li>
+        <li>مدل‌های :free پایدار نیستن</li>
+        <li>set HTTP_PROXY تو CMD</li>
+        <li>Laravel AI SDK: provider-agnostic</li>
+        <li>Function Calling = RAG واقعی</li>
+        <li>Http::globalOptions</li>
+        <li>دو سرور همزمان (8000 + 8001)</li>
+        <li>->where() روی Route</li>
+        <li>regex فارسی: (?:^|[\s،,\.!؟])</li>
+        <li>config:clear بعد از تغییر</li>
+        <li>?: نه ?? تو SpamDetector</li>
+        <li>tinker: فقط PHP</li>
+        <li>providers.php → config:clear</li>
+        <li>hash در DB (نه .env)</li>
+        <li>Middleware → alias تو bootstrap/app.php</li>
+        <li>Provider: register() binding، boot() logic</li>
+      </ol>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <div class="card" style="text-align: center; margin-top: 40px;">
+      <h2>🎉 تبریک!</h2>
+      <p>تو الآن <strong>معماری کامل پروژه</strong> رو می‌دونی.</p>
+      <p>هر وقت گم شدی، این فایل رو باز کن.</p>
+      <p style="color: var(--accent); margin-top: 20px;">
+        «تو معمار هستی، نه بنّا.» 🏛️
+      </p>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      primaryColor: '#21262d',
+      primaryTextColor: '#c9d1d9',
+      primaryBorderColor: '#58a6ff',
+      lineColor: '#8b949e',
+      secondaryColor: '#161b22',
+      tertiaryColor: '#0d1117'
+    }
+  });
+</script>
+
+</body>
+</html>

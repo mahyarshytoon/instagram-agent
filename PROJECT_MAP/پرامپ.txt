@@ -1,0 +1,563 @@
+# 🎯 عالیه! بذار یه پرامپت به‌روز شده‌ی **نهایی** بسازیم
+
+که **همه‌ی کارهای این session** رو داشته باشه.
+
+---
+
+## 📋 چیزهایی که تو این session اضافه شد
+
+| # | کار | وضعیت |
+|---|-----|-------|
+| ۱ | `access_token: null` → باگ نبود | ✅ |
+| ۲ | Response های بدون tokens → باگ نبود | ✅ |
+| ۳ | **fix ایموجی** (prompt + regex) | ✅ |
+| ۴ | **`comments:retry-skipped`** command | ✅ |
+| ۵ | `ValidateCommentJob` → skip بدون محصول | (کشف شد) |
+| ۶ | `fake:comment --post=` → راه‌حل تست | ✅ |
+| ۷ | `RetrySkippedComments` command | ✅ |
+
+---
+
+## 📄 پرامپت به‌روز شده (نسخه ۲)
+
+**این رو کپی کن و **جایگزین** پرامپت قبلی کن (یا به عنوان `PROJECT_NOTES.md` تو پروژه بذار):**
+
+---
+
+```markdown
+# 📄 پرامپت به‌روز شده برای چت جدید (نسخه ۲)
+
+این متن رو **کپی کن** و تو چت جدید بفرست:
+
+---
+
+سلام! 👋 می‌خوام پروژه Laravel خودم (Instagram Agent) رو ادامه بدم.
+لطفاً همه چیز رو از پایه بفهم و به سبک «معلم + analogy + مثال + فارسی» جواب بده.
+
+═══════════════════════════════════════════════════════════════
+🎯 خلاصه یک‌خطی پروژه
+═══════════════════════════════════════════════════════════════
+
+یه ربات Laravel که به کامنت‌های اینستاگرام با AI جواب می‌ده.
+مغز ربات: Laravel AI SDK + RAG + Function Calling
+اتصال AI: OpenRouter (deepseek/deepseek-v4-flash-0731)
+فیلتر: SpamDetector فارسی
+دمو: صفحه‌ی شبیه اینستاگرام + FakeMetaServer
+تست: ۳۶ تست آفلاین PHPUnit 12 (پاس)
+
+محیط:
+- Laravel 13.33
+- PHP 8.4.12
+- MySQL (Laragon)
+- Redis
+- مسیر: C:\laragon\www\instagram-agent
+- پروکسی: Hiddify روی http://127.0.0.1:2334
+- من از ایرانم، Meta تحریمه، برای همین FakeMetaServer ساختیم
+
+═══════════════════════════════════════════════════════════════
+✅ مراحل انجام‌شده (۱ تا ۳۰)
+═══════════════════════════════════════════════════════════════
+
+【مراحل ۱-۱۲】Setup + ساختار پایه
+- ۱۲ Migration (products, instagram_posts, comments, ...)
+- ۱۱ Model
+- ۸ Service
+- ValidateCommentJob
+- InstagramWebhookController
+
+【مرحله ۱۳】تست‌ها
+- ۳۶ تست آفلاین PHPUnit 12
+- ۵ Factory
+- InstagramApiException
+- AIService + InstagramService
+
+【مرحله ۱۴】Laravel AI SDK + RAG
+- ProductSalesAgent (app/Ai/Agents/)
+- GetProductInfoTool + SearchProductsTool (app/Ai/Tools/)
+- اتصال به OpenRouter
+- Function Calling = RAG واقعی
+
+【مرحله ۱۵】FakeMetaServer + صفحه دمو
+- app/Models/FakeMetaRequest.php (لاگ درخواست‌های Meta جعلی)
+- app/Http/Controllers/Fake/FakeMetaController.php
+- migration create_fake_meta_requests_table
+- routes/api.php: fake-meta/{version}/{commentId}/replies
+- AppServiceProvider: Http::globalOptions(['proxy' => [...], 'no' => ['127.0.0.1', 'localhost']])
+- app/Http/Controllers/DemoController.php (index/show/store)
+- resources/views/demo/index.blade.php + post.blade.php (UI شبیه اینستاگرام)
+- routes/web.php: /demo, /demo/post/{product}, /demo/comment
+- config/agent.php: banned_words + banned_patterns (فحش‌های فارسی)
+- SpamDetector با hasBannedPatterns() (regex فارسی چون \b کار نمی‌کنه)
+- DemoController مستقیم SpamDetector رو صدا می‌زنه (نه WebhookHandler)
+
+【مرحله ۱۶】Command fake:comment  ✅
+- app/Console/Commands/SendFakeComment.php
+- امضا: HMAC-SHA256 با APP_SECRET
+- Payload شبیه Meta
+- ارسال به /api/instagram/webhook
+- --user=, --post=, --url= options
+
+【مرحله ۱۷】اتصال کامل Webhook → AI → FakeMeta ✅
+- تست کامل: fake:comment → webhook → Job → AI → FakeMeta → Response
+- Worker ۶-۸ ثانیه طول می‌کشه
+- status نهایی: processed
+
+【مرحله ۱۸】مهندسی معکوس + تحلیل معماری ✅
+- Layered Architecture
+- Design Patterns: Pipeline, Repository-ish, Strategy-ish, Command, Tool, Job, Facade, Adapter, DI
+
+【مرحله ۱۹】InstagramService با MetaAdapter Pattern ✅
+- اصلاح باگ: دو __construct داشت
+- InstagramService فقط delegate می‌کنه
+
+【مرحله ۲۰】ساختار MetaAdapter Pattern ✅
+- app/Services/Meta/MetaAdapter.php (interface)
+- FakeMetaAdapter, RealMetaAdapter
+- MetaServiceProvider (singleton)
+- ثبت در bootstrap/providers.php
+
+【مرحله ۲۱】۴ ترمینال + بهینه‌سازی پروکسی ✅
+- ترمینال ۱: Webhook (8000) — با پروکسی
+- ترمینال ۲: FakeMeta (8001) — بدون پروکسی
+- ترمینال ۳: Queue Worker — با پروکسی + NO_PROXY
+- ترمینال ۴: تست/دیباگ — بدون پروکسی
+- start-all.bat
+
+【مرحله ۲۲】پنل ادمین — Foundation ✅
+- Migration create_admin_settings_table (key/value/group/description/type)
+- Model AdminSetting (get/set/group + Cache TTL=300s + negative caching)
+- config/admin.php (auth, route, ui, meta)
+- AdminAuth Middleware (sliding expiration, JSON for AJAX)
+- LoginController (RateLimiter + Hash::check + session regenerate)
+- Login View (گرادیانت صورتی-بنفش)
+- Layout (Sidebar + Header + @yield)
+- Routes: /admin/login, /admin/dashboard, /admin/logout
+
+【مرحله ۲۳】پنل ادمین — Meta Logs ✅
+- MetaLogController (index + show)
+- View index (۴ کارت آمار + فیلتر + جدول + pagination)
+- View show (JSON با رنگ)
+- Dashboard (۴ کارت + ۵ لاگ آخر)
+
+【مرحله ۲۴】پنل ادمین — Settings ✅
+- config/admin_settings.php (نقشه‌ی ۴ گروه: spam, rate_limit, ai, meta)
+- AdminSetting با get/set/group/seedDefaults/syncFromConfig/getDefaultValues
+- AdminSettingSeeder + DatabaseSeeder
+- SettingsController (index + update) — generic بر اساس config
+- View تب‌دار (inputName با _، old() برای validation)
+- Routes: /admin/settings (GET + POST)
+- Sidebar link
+- Wire کردن SpamDetector (از AdminSetting::get با fallback به config)
+- تست: تغییر از پنل → effect تو SpamDetector ✅
+
+【مرحله ۲۵】پنل ادمین — Comments ✅
+- CommentController (index + show)
+- View index (۴ کارت آمار + فیلتر status + جستجو + جدول)
+- View show (متن، پاسخ‌ها، اطلاعات پایه، کاربر، پست، زمان‌ها)
+- Routes: /admin/comments (GET + show)
+- Sidebar link
+
+【مرحله ۲۶】پنل ادمین — Conversations ✅
+- ConversationController (index + show)
+- View index (۴ کارت آمار + فیلتر + جدول)
+- View show (Thread پیام‌ها به شکل Chat Bubble + اطلاعات)
+- Routes: /admin/conversations (GET + show)
+- Sidebar link
+
+【مرحله ۲۹】اتصال AIService به ProductSalesAgent ✅
+- ProductSalesAgent داینامیک شد:
+  * حذف attribute های #[Model], #[MaxTokens], #[Temperature]
+  * اضافه شدن متدهای model() / temperature() / maxTokens() / provider()
+  * پارامتر customPrompt برای override instructions
+- AIService بازنویسی شد:
+  * از AdminSetting::get('ai.model', config(...)) می‌خونه
+  * از AdminSetting::get('ai.temperature') و ai.max_tokens
+  * از AdminSetting::get('ai.system_prompt') برای prompt سفارشی
+  * از $agent->withMessages($history)->prompt($userText) استفاده می‌کنه
+  * tokens واقعی از $response->usage->inputTokens/outputTokens
+  * خروجی: {success, text, model, input_tokens, output_tokens, total_tokens, error}
+- Migration add_ai_meta_to_responses_table:
+  * ai_model (string 100), input_tokens (int), output_tokens (int)
+- Response Model: fillable آپدیت
+- ValidateCommentJob:
+  * AIService رو با app() می‌گیره (نه type-hint)
+  * مقادیر ai_model/input_tokens/output_tokens رو تو متغیر جدا می‌گیره قبل از DB::transaction
+  * ⚠️ باگ مهم: closure scope — قبلاً $aiResult تو use نبود و با ?? پنهان می‌شد
+- تست: tokens واقعی ذخیره می‌شه ✅
+  * ai_model = "deepseek/deepseek-v4-flash-0731"
+  * input_tokens = 1027
+  * output_tokens = 103
+
+【مرحله ۳۰】رفع باگ‌های کوچیک + fix ایموجی ✅
+- ✅ access_token: null تو FakeMetaRequest → **باگ نبود** (ستون وجود نداره)
+- ✅ Response های قدیمی بدون tokens → **باگ نبود** (جایی استفاده نمی‌شه)
+- ✅ **fix ایموجی** با دو لایه:
+  * **لایه ۱ (پیشگیری):** ProductSalesAgent::instructions() به AI می‌گه ایموجی نزن
+  * **لایه ۲ (تضمین):** AIService::stripEmojis() با regex یونیکد، ایموجی‌ها رو پاک می‌کنه
+  * regex: `/[\x{1F300}-\x{1F9FF}\x{1FA00}-\x{1FAFF}\x{2600}-\x{27BF}\x{FE0F}\x{200D}\x{1F1E6}-\x{1F1FF}]/u`
+- ✅ **command جدید**: `comments:retry-skipped`
+  * فایل: app/Console/Commands/RetrySkippedComments.php
+  * کامنت‌های skipped که الان پستشون محصول فعال داره رو retry می‌کنه
+  * Options: --dry-run, --post=, --limit=
+  * نتیجه: status → pending + dispatch ValidateCommentJob
+- ✅ **راه‌حل تست AI**: `fake:comment "متن" --post=post_fake_XXX`
+  * چون fake:comment پست جدید (بدون محصول) می‌سازه، با --post= از پست موجود استفاده کن
+
+═══════════════════════════════════════════════════════════════
+🐛 باگ‌ها و درس‌ها
+═══════════════════════════════════════════════════════════════
+
+【باگ ۱】دو __construct در InstagramService → یکی override می‌کرد
+【باگ ۲】MetaAdapter is not instantiable → Provider ثبت نشده
+【باگ ۳】Auth guard [admin] is not defined → guest:admin اشتباه
+【باگ ۴】$ تو .env → راه‌حل: DB یا '...' تک‌کوتیشن
+【باگ ۵】syntax error تو config/agent.php → کوتیشن بسته نشده
+【باگ ۶】config/admin_settings.php قبل از config/agent.php لود می‌شه (Laravel الفبایی)
+       → راه‌حل: مقادیر پیش‌فرض تو Model::getDefaultValues()، نه تو config
+【باگ ۷】🐛 PHP Closure Scope (مهم‌ترین باگ):
+       DB::transaction(function () use ($comment, $replyText, $sendResult) {
+           Response::create(['ai_model' => $aiResult['model'] ?? null]);  // ← $aiResult تو use نیست!
+       });
+       → PHP با ?? مقدار null میده و خطا نمی‌ده
+       → راه‌حل: قبل از closure مقادیر رو تو متغیر جدا کن، بعد تو use بذار
+【باگ ۸】Queue Worker کد قدیمی رو نگه می‌داره → بعد از تغییر باید restart کنی
+【باگ ۹】🆕 ValidateCommentJob وقتی پست محصول فعال نداره → status = skipped
+       → راه‌حل: fake:comment با --post=XXX بزن، یا comments:retry-skipped اجرا کن
+【باگ ۱۰】🆕 fake:comment یه پست جدید می‌سازه (بدون محصول)
+       → راه‌حل: از --post=post_fake_XXX استفاده کن
+
+═══════════════════════════════════════════════════════════════
+🏗️ معماری کامل پروژه
+═══════════════════════════════════════════════════════════════
+
+【جریان Webhook】
+Meta → POST /api/instagram/webhook
+  → InstagramWebhookController::handle
+  → WebhookHandler::handle
+    ├─ WebhookLog::create
+    ├─ SignatureVerifier::verify (HMAC-SHA256)
+    ├─ extractData
+    ├─ DB::transaction → processComment
+    │   ├─ TextSanitizer
+    │   ├─ firstOrCreate User/Post
+    │   ├─ SpamDetector (از AdminSetting::get با fallback)
+    │   ├─ RateLimiter
+    │   ├─ UserAnalyzer
+    │   ├─ ConversationManager
+    │   └─ Comment::create + addMessage
+    └─ ValidateCommentJob::dispatch
+      └─ Worker:
+          ├─ چک محصول فعال (اگه نباشه → skipped)
+          ├─ AIService::generateReply
+          │   ├─ AdminSetting::get('ai.model', config(...))
+          │   ├─ new ProductSalesAgent($products, $model, $temp, $maxTokens, $customPrompt)
+          │   ├─ ProductSalesAgent::instructions() → "ایموجی نزن"
+          │   ├─ $agent->withMessages($history)->prompt($userText)
+          │   └─ stripEmojis() → پاک کردن ایموجی‌ها
+          ├─ InstagramService::replyToComment
+          │   └─ MetaAdapter::replyToComment
+          ├─ Response::create (با ai_model, input_tokens, output_tokens)
+          └─ Comment.status = processed
+
+【جریان پنل ادمین】
+/admin/login → LoginController → Hash::check → session
+/admin/dashboard → آمار + ۵ لاگ آخر
+/admin/meta-logs → MetaLogController
+/admin/settings → SettingsController (tab-based)
+/admin/comments → CommentController
+/admin/conversations → ConversationController
+
+【جریان Retry Skipped】
+php artisan comments:retry-skipped --dry-run
+  → پیدا کردن Comment::where('status', 'skipped')
+  → فیلتر: پستشون محصول فعال داره؟
+  → نمایش جدول
+  → تأیید کاربر
+  → برای هر کدوم: status = pending + dispatch ValidateCommentJob
+
+═══════════════════════════════════════════════════════════════
+📁 ساختار فایل‌های کلیدی
+═══════════════════════════════════════════════════════════════
+
+app/
+├── Ai/
+│   ├── Agents/ProductSalesAgent.php (داینامیک + بدون ایموجی)
+│   └── Tools/{GetProductInfoTool, SearchProductsTool}.php
+├── Console/Commands/
+│   ├── SendFakeComment.php
+│   └── RetrySkippedComments.php  ← 🆕
+├── Exceptions/InstagramApiException.php
+├── Http/
+│   ├── Controllers/
+│   │   ├── Admin/
+│   │   │   ├── LoginController.php
+│   │   │   ├── MetaLogController.php
+│   │   │   ├── SettingsController.php
+│   │   │   ├── CommentController.php
+│   │   │   └── ConversationController.php
+│   │   ├── DemoController.php
+│   │   ├── Api/InstagramWebhookController.php
+│   │   └── Fake/FakeMetaController.php
+│   └── Middleware/AdminAuth.php
+├── Jobs/ValidateCommentJob.php
+├── Models/
+│   ├── AdminSetting.php
+│   ├── Comment.php
+│   ├── Conversation.php
+│   ├── FakeMetaRequest.php
+│   ├── InstagramPost.php
+│   ├── InstagramUser.php
+│   ├── Message.php
+│   ├── Product.php
+│   ├── Response.php (با ai_model, input_tokens, output_tokens)
+│   ├── Setting.php (legacy)
+│   └── WebhookLog.php
+├── Providers/{AppServiceProvider, MetaServiceProvider}.php
+└── Services/
+    ├── Meta/{MetaAdapter, FakeMetaAdapter, RealMetaAdapter}.php
+    ├── SignatureVerifier.php
+    ├── TextSanitizer.php
+    ├── SpamDetector.php
+    ├── RateLimiter.php
+    ├── UserAnalyzer.php
+    ├── ConversationManager.php
+    ├── AIService.php (from AdminSetting + withMessages + stripEmojis)
+    ├── InstagramService.php
+    └── WebhookHandler.php
+
+config/
+├── admin.php
+├── admin_settings.php
+├── agent.php
+└── ai.php
+
+resources/views/
+├── admin/
+│   ├── layouts/app.blade.php
+│   ├── auth/login.blade.php
+│   ├── dashboard.blade.php
+│   ├── settings/index.blade.php
+│   ├── comments/{index,show}.blade.php
+│   ├── conversations/{index,show}.blade.php
+│   └── meta-logs/{index,show}.blade.php
+└── demo/{index,post}.blade.php
+
+database/migrations/
+├── ..._create_admin_settings_table.php
+└── ..._add_ai_meta_to_responses_table.php
+
+database/seeders/{DatabaseSeeder, AdminSettingSeeder}.php
+
+═══════════════════════════════════════════════════════════════
+🖥️ راه‌اندازی ۴ ترمینال
+═══════════════════════════════════════════════════════════════
+
+┌─ ترمینال ۱ — Webhook Server (8000) — با پروکسی ──────┐
+│ cd C:\laragon\www\instagram-agent                     │
+│ set HTTP_PROXY=http://127.0.0.1:2334                  │
+│ set HTTPS_PROXY=http://127.0.0.1:2334                 │
+│ php artisan serve                                     │
+└───────────────────────────────────────────────────────┘
+
+┌─ ترمینال ۲ — FakeMetaServer (8001) — بدون پروکسی ────┐
+│ php artisan serve --port=8001                         │
+└───────────────────────────────────────────────────────┘
+
+┌─ ترمینال ۳ — Queue Worker — با پروکسی + NO_PROXY ────┐
+│ set HTTP_PROXY=http://127.0.0.1:2334                  │
+│ set HTTPS_PROXY=http://127.0.0.1:2334                 │
+│ set NO_PROXY=127.0.0.1,localhost                      │
+│ php artisan queue:work --queue=ai-responses -v        │
+└───────────────────────────────────────────────────────┘
+
+┌─ ترمینال ۴ — تست و دیباگ — بدون پروکسی ──────────────┐
+└───────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════
+🔑 قوانین طلایی
+═══════════════════════════════════════════════════════════════
+
+۱. Job بعد از DB::transaction dispatch کن
+۲. همیشه 200 OK به Meta
+۳. PHPUnit 12: test_ prefix
+۴. Http::fake() برای تست آفلاین
+۵. RefreshDatabase استاندارد
+۶. Exception پرتاب کن، array نه
+۷. api_base از config
+۸. isRetryable/isAuthError/isPermanent تو Exception
+۹. env() در config فقط اسم کلید
+۱۰. model ID دقیق: provider/model-name
+۱۱. مدل‌های :free OpenRouter پایدار نیستن
+۱۲. set HTTP_PROXY تو CMD قبل از serve
+۱۳. Laravel AI SDK: provider-agnostic
+۱۴. Function Calling = RAG واقعی
+۱۵. Http::globalOptions(['proxy' => ['no' => ['127.0.0.1']]])
+۱۶. دو سرور همزمان (8000 + 8001)
+۱۷. ->where() روی Route، نه Group
+۱۸. regex فارسی: (?:^|[\s،,\.!؟\?!:;]) نه \b
+۱۹. بعد از تغییر config/*.php → config:clear + tinker جدید
+۲۰. تو SpamDetector از ?: استفاده کن نه ??
+۲۱. تو tinker فقط PHP بنویس، نه CMD
+۲۲. بعد از تغییر providers.php → config:clear + optimize:clear + tinker جدید
+۲۳. برای hash/token تو .env → از DB یا ' تک‌کوتیشن
+۲۴. Middleware سفارشی → alias تو bootstrap/app.php
+۲۵. Provider → register() برای binding، boot() برای logic
+۲۶. بعد از هر تغییر Job/Service → Queue Worker باید restart بشه
+۲۷. تو PHP Closure، متغیرهای بیرونی باید تو use (...) باشن
+۲۸. Laravel config الفبایی لود می‌شه — به config() تو config/*.php اعتماد نکن
+۲۹. باگ‌های ?? تو closure رو جدی بگیر — خطا نمی‌ده ولی data گم می‌شه
+۳۰. fake:comment متن فارسی رو تو CMD خراب می‌کنه (????) → انگلیسی بفرست
+۳۱. 🆕 برای تست AI: fake:comment "متن" --post=post_fake_XXX (نه بدون --post=)
+۳۲. 🆕 با nullsafe operator: Response::latest()->first()?->text
+۳۳. 🆕 Defense in Depth: هم prompt، هم regex (برای ایموجی یا هر چیز دیگه)
+۳۴. 🆕 تو command ها از --dry-run استفاده کن (تست بدون تغییر)
+۳۵. 🆕 regex یونیکد: /[\x{1F300}-\x{1F9FF}]/u (با فلگ u)
+
+═══════════════════════════════════════════════════════════════
+🎯 مرحله بعدی: تصمیم خودت
+═══════════════════════════════════════════════════════════════
+
+【مرحله ۳۱】تست‌های بیشتر  🟢
+- تست fake:comment (PHPUnit)
+- تست comments:retry-skipped (PHPUnit)
+- تست اسپم از webhook
+- تست rate limit
+- تست پنل ادمین
+
+【مرحله ۲۷】پنل ادمین — Products 🛍️  🟡 اختیاری
+- CRUD محصولات
+- آپلود عکس
+- attach به پست
+
+【مرحله ۲۸】پنل ادمین — Users 👥  🟡 اختیاری
+- لیست کاربران Instagram
+- آمار کامنت هر کاربر
+
+【مرحله ۳۲】اتصال به Meta واقعی  🔴
+- نیاز به VPS + Token واقعی
+- فقط META_ADAPTER=real تو .env
+
+【مرحله ۳۳】بهینه‌سازی + Monitoring  🟢
+- Cache برای AI
+- لاگ‌های ساختاریافته
+- متریک‌ها
+- Circuit Breaker
+
+【مرحله ۳۴】🆕 بستن پروژه (نمونه‌کار)
+- README حرفه‌ای
+- Git push به GitHub
+- LinkedIn
+- رزومه
+
+═══════════════════════════════════════════════════════════════
+🎓 سبک آموزش مورد نظر
+═══════════════════════════════════════════════════════════════
+
+- فارسی جواب بده
+- analogy بزن (مثل معلم)
+- مثال واقعی از پروژه‌ی خودم بزن
+- usage-box داشته باشه
+- خط‌به‌خط توضیح بده
+- وقتی کد می‌دی، بگو تو کدوم فایل و چرا
+- وقتی دستور CMD می‌دی، بگو تو کدوم ترمینال
+- ساده باش، گیج نکن
+- قبل از کد دادن، از من فایل‌های مربوطه رو بخواه
+- حدس نزن — اگه چیزی رو نمی‌دونی، بپرس
+- مرحله‌به‌مرحله برو: کد بده → من تست کنم → نتیجه رو بفرستم → برو کد بعدی
+- هر مرحله کد + تست، منتظر جواب تست بمون
+
+═══════════════════════════════════════════════════════════════
+🎯 درخواست من
+═══════════════════════════════════════════════════════════════
+
+می‌خوام کدها رو یاد بگیرم و پروژه رو ادامه بدم.
+
+الآن می‌خوام از مرحله ۳۱ (تست‌های بیشتر) شروع کنم یا هر مرحله‌ای که پیشنهاد می‌دی.
+لطفاً:
+۱. قبل از کد دادن، فایل‌های مربوطه رو ازم بخواه
+۲. analogy و مثال بزن
+۳. فارسی جواب بده
+۴. سبک: معلم + مثال + analogy + usage-box
+۵. مرحله‌به‌مرحله برو، منتظر تست بمون
+
+از کجا شروع کنیم؟
+```
+
+---
+
+## 🎯 نکات مهمی که اضافه شد
+
+### ۱. **مرحله ۳۰** کامل توضیح داده شد ✅
+- fix ایموجی (لایه ۱ + لایه ۲)
+- command `comments:retry-skipped`
+- راه‌حل `fake:comment --post=`
+
+### ۲. **باگ‌های ۹ و ۱۰** (جدید) 🐛
+- ValidateCommentJob → skipped بدون محصول
+- fake:comment پست جدید بدون محصول می‌سازه
+
+### ۳. **قوانین طلایی ۳۱-۳۵** (جدید) 📜
+- `--post=` برای تست AI
+- nullsafe operator `?->`
+- Defense in Depth
+- `--dry-run` تو command ها
+- regex یونیکد با `/u`
+
+### ۴. **مرحله ۳۴** (جدید) 🎯
+- بستن پروژه به عنوان نمونه‌کار
+- README + GitHub + LinkedIn + رزومه
+
+### ۵. **مسیر `comments:retry-skipped`** به معماری اضافه شد
+
+---
+
+## 📁 کجا بذاریش؟
+
+**پیشنهاد من: به عنوان یه فایل تو پروژه**
+
+**مسیر:** `C:\laragon\www\instagram-agent\PROJECT_NOTES.md`
+
+**چرا؟**
+- ✅ تو پروژه‌ت هست
+- ✅ تو Git push می‌شه (کارفرما هم می‌تونه ببینه)
+- ✅ هر وقت خواستی چت جدید بزنی، از اینجا کپی می‌کنی
+- ✅ خودش یه **مدرک** از کیفیت کارته
+
+**⚠️ نکته:** اگه فایل رو تو پروژه بذاری، تو GitHub هم نمایش داده می‌شه. این **امتیاز مثبته** — کارفرما می‌بینه که تو **مستندسازی** هم بلدی.
+
+---
+
+## 🚀 کارهای بعدی (پیشنهاد)
+
+### کار ۱: فایل رو بساز
+
+یه فایل به اسم `PROJECT_NOTES.md` تو ریشه‌ی پروژه بساز و محتوای بالا رو توش کپی کن.
+
+### کار ۲: `.gitignore` رو چک کن
+
+مطمئن شو `.env` توش هست (که رمزها لو نره).
+
+### کار ۳: Git push
+
+```bash
+git add PROJECT_NOTES.md
+git commit -m "docs: add project notes for future reference"
+git push
+```
+
+### کار ۴: برو مرحله ۳۱ یا ۳۴
+
+- **۳۱:** تست‌های بیشتر (PHPUnit)
+- **۳۴:** بستن پروژه (README + GitHub + LinkedIn)
+
+---
+
+## ⏸️ نظرت چیه؟
+
+**سه تا سؤال:**
+
+1. **فایل `PROJECT_NOTES.md` رو تو پروژه بذارم؟** (پیشنهاد من: آره)
+2. **بریم مرحله ۳۱ (تست) یا ۳۴ (بستن پروژه)؟**
+3. **GitHub داری؟** (اگه نه، بریم بسازیم)
+
+😊
