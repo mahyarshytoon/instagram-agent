@@ -30,7 +30,7 @@
 
 ### 🚀 نصب
 ```bash
-git clone https://github.com/USERNAME/instagram-agent.git
+git clone https://github.com/mahyarshytoon/instagram-agent.git
 cd instagram-agent
 composer install
 npm install
